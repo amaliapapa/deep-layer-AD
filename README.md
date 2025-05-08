@@ -1,6 +1,6 @@
 # deep-layer-AD
 🧠 Code for Paper:
-“Selectively vulnerable deep cortical layer 5/6 fast-spiking interneurons in Alzheimer’s Disease models in vivo”
+“Selectively vulnerable deep cortical layer 5/6 fast-spiking interneurons in Alzheimer’s Disease models in vivo”,
 Papanikolaou et al., Neuron, 2025
 
 This repository contains:
