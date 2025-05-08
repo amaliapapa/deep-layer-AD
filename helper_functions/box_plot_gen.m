@@ -1,0 +1,94 @@
+function box_plot_gen(y, genotype, depth,perm)
+
+% Default figure settings
+% fig = figure;
+% set(groot,'defaultAxesFontName', 'Arial');
+% set(groot,'defaultAxesFontSize', 12);
+% set(groot,'defaultAxesTickDir','out');
+% set(groot,'defaultAxesTickDirMode','manual');
+% set(groot,'defaultFigureColor','w');
+% set(groot,'defaultAxesTitleFontWeight','normal');
+% set(groot,'defaultAxesTickLength',[0.02 0.02]);
+
+load('actonS.mat');
+
+app_sup = find(strcmp(genotype, 'APP') & strcmp(depth, 'Sup'));
+app_deep = find(strcmp(genotype, 'APP') & strcmp(depth, 'Deep'));
+wt_sup = find(strcmp(genotype, 'WT') & strcmp(depth, 'Sup'));
+wt_deep = find(strcmp(genotype, 'WT') & strcmp(depth, 'Deep'));
+
+genotype = categorical(genotype);
+depth = categorical(depth);
+
+
+if perm~=1
+  [~,~,stats] = anovan(y,{genotype depth},"Model","interaction", ...
+  "Varnames",["genotype","area"], 'display', 'on');
+  [results,~,~,gnames] = multcompare(stats,"Dimension",[1 2], 'display', 'on', 'CriticalValueType', 'tukey-kramer');
+end
+
+
+%fig = figure;
+ordereddepth = reordercats(depth,{'Sup', 'Deep'});
+orderedgen = reordercats(genotype,{'WT', 'APP'});
+b = boxchart(ordereddepth,y,'GroupByColor',orderedgen);
+b(1).BoxFaceColor =  actonS(1,:);
+b(1).BoxFaceAlpha =  0.5;
+b(2).BoxFaceColor =  actonS(7,:);
+b(2).BoxFaceAlpha =  0.5;
+hold on; s = swarmchart(0.75*ones(1,length(wt_sup)),y(wt_sup),20,actonS(1:15:length(wt_sup)*15,:),'filled');
+s.XJitterWidth = 0.1;
+hold on; s = swarmchart(1.25*ones(1,length(app_sup)),y(app_sup),20,actonS(1:10:length(app_sup)*10,:),'filled');
+s.XJitterWidth = 0.1;
+hold on; s = swarmchart(1.75*ones(1,length(wt_deep)),y(wt_deep),20,actonS(1:15:length(wt_deep)*15,:),'filled');
+s.XJitterWidth = 0.1;
+hold on; s = swarmchart(2.25*ones(1,length(app_deep)),y(app_deep),20,actonS(1:10:length(app_deep)*10,:),'filled');
+s.XJitterWidth = 0.1;
+%[h p] = ttest2(mean_cond(wtmice,1),mean_cond(appmice,1))
+%ylim([20 100])
+if max(y)<=5
+    offsetp = 1;
+elseif max(y)>5 && max(y)<25
+    offsetp = 2;
+elseif max(y)>=25
+    offsetp = 10;
+end
+text(0.8,max(y)+offsetp,['P = ',num2str(round(results(6,6),3))]);
+text(1.8,max(y)+offsetp,['P = ',num2str(round(results(1,6),3))]);
+
+
+if perm==1
+    P = nan(100000,length(wt_sup)+length(app_sup));
+    y_sup = y([wt_sup,app_sup]);
+    for i=1:100000
+        pr = randperm(length(wt_sup)+length(app_sup));
+        P(i,:) = y_sup(pr);
+    end
+    nd = [];
+    for i=1:size(P,1)
+        nd(i) = nanmean(P(i,1:length(wt_sup)))-nanmean(P(i,length(wt_sup)+1:length(wt_sup)+length(app_sup)));
+    end
+    av = nanmean(y_sup(1:length(wt_sup)))-nanmean(y_sup(length(wt_sup)+1:length(wt_sup)+length(app_sup)));
+    av = abs(av);
+    p = length(find(nd>=av))./length(nd);
+
+    text(0.8,max(y),['P = ',num2str(round(p,3))]);
+
+    P = nan(100000,length(wt_deep)+length(app_deep));
+    y_deep = y([wt_deep,app_deep]);
+    for i=1:100000
+        pr = randperm(length(wt_deep)+length(app_deep));
+        P(i,:) = y_deep(pr);
+    end
+    nd = [];
+    for i=1:size(P,1)
+        nd(i) = nanmean(P(i,1:length(wt_deep)))-nanmean(P(i,length(wt_deep)+1:length(wt_deep)+length(app_deep)));
+    end
+    av = nanmean(y_deep(1:length(wt_deep)))-nanmean(y_deep(length(wt_deep)+1:length(wt_deep)+length(app_deep)));
+    av = abs(av);
+    p = length(find(nd>=av))./length(nd);
+
+    text(1.8,max(y),['P = ',num2str(round(p,3))]);
+end
+
+%set(fig, 'Renderer', 'painters');
