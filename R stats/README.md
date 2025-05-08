@@ -1,12 +1,21 @@
-R code to reproduce statistical comparisons that require the use of Generalized Mixed Effects Models
+R code used to perform statistical analyses for the main figures of the study using Generalized Linear Mixed Effects Models (GLMMs).
 
-Libraries needed:
-lme4
-tidyverse
-readxl
-car
+Required R Packages
+Ensure the following libraries are installed:
 
+lme4 – for fitting GLMMs
 
-Use file R_stats_for_main_figures.r to run the statistical comparisons for the main figures
+tidyverse – for data manipulation and visualization
 
-Comparisons for supplemental material can be reproduced in a similar manner.
+readxl – for reading Excel files
+
+car – for type III ANOVA and other model utilities
+
+Install any missing packages with:
+install.packages(c("lme4", "tidyverse", "readxl", "car"))
+
+How to Use:
+Run the script R_stats_for_main_figures.r to reproduce the statistical comparisons used in the main figures of the paper.
+
+Supplemental Analyses:
+Comparisons for the supplemental figures can be reproduced in a similar fashion by adapting the input file paths and sheet names accordingly.
